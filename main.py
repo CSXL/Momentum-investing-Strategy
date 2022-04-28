@@ -166,7 +166,7 @@ class QMS:
         for t in self.chunk_of_return_features:
             avgpercentile.append(self.Stock_data_HQM.loc[row,t+'ChangeReturn percentile'])
         self.Stock_data_HQM.loc[row,'HQM score'] = float(np.mean(avgpercentile))
-        self.Stock_data_HQM.sort_values(by=['HQM score'],ascending=False,inplace=True)
+        self.Stock_data_HQM.sort_values(by=['HQM score'],ascending=False)
       print(self.Stock_data_HQM)
 
 #scores = self.self.Stock_data_HQM['HQM score']
@@ -181,10 +181,8 @@ class QMS:
       available_symbols_list=list(self.get_available_symbol_data(self.Ticker))
       print(len(available_symbols_list),len(yearchange),len(pricelist))
       self.load_data(available_symbols_list,pricelist,yearchange)
-      self.get_portfolio_data()
       self.get_cols_length()
       self.load_returns()
       self.get_percentile()
       self.get_HQM_score()
-
-
+      self.get_portfolio_data()
