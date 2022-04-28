@@ -26,7 +26,6 @@ class QMS:
     
         return list(data)
 
-#pricelist = list(get_price_data(self.Ticker))
 
     def get_yearchange_data(self,stock_ticker):
         data = []
@@ -39,7 +38,6 @@ class QMS:
                 print('unfound stock')
     
         return list(data)
-#yearchange = list(get_yearchange_data(self.Ticker))
 
     def get_available_symbol_data(self,stock_ticker):
         data = []
@@ -52,9 +50,7 @@ class QMS:
                 print('unfound stock')
     
         return list(data)
-#available_symbols_list=list(get_available_symbol_data(self.Ticker))
 
-#print(len(available_symbols_list),len(yearchange),len(pricelist))
     def load_data(self,available_symbols_list,pricelist,yearchange):
         columns = ['Symbol',"price",'return in one year','Number of shares to purchase']
         self.Stock_data = pd.DataFrame(columns=columns)
@@ -72,21 +68,19 @@ class QMS:
 
     def get_portfolio_data(self):
         potfolio = int(input('Enter a value : '))
-        potfolio_size = (potfolio/len(self.Stock_data.index))
+        potfolio_size = (potfolio/70)
         for i in range(0,len(self.Stock_data.index),1):
             self.Stock_data.loc[i,'Number of shares to purchase'] = potfolio_size/self.Stock_data.loc[i,'price']
 
         print(self.Stock_data)
 
 
-    #stats
     def get_cols_length(self):
         HQM_columns = ['symbols','price','Number of shares to buy','year1ChangeReturn','year1ChangeReturn percentile',"month6ChangeReturn",'month6ChangeReturn percentile','month3ChangeReturn','month3ChangeReturn percentile','month1ChangeReturn','month1ChangeReturn percentile','HQM score']
         self.Stock_data_HQM = pd.DataFrame(columns=HQM_columns)
         self.Stock_data_HQM
         print(len(HQM_columns))
 
-#info = zip(list(Stock_data['Symbol']),list(Stock_data['price']),list(Stock_data['Number of shares to purchase']),list(Stock_data['return in one year']))
     def load_returns(self):
         for index in range(0,len(list(self.Stock_data['Symbol']))-1):
             try:
@@ -166,23 +160,22 @@ class QMS:
         for t in self.chunk_of_return_features:
             avgpercentile.append(self.Stock_data_HQM.loc[row,t+'ChangeReturn percentile'])
         self.Stock_data_HQM.loc[row,'HQM score'] = float(np.mean(avgpercentile))
-        self.Stock_data_HQM.sort_values(by=['HQM score'],ascending=False)
+        self.Stock_data_HQM = self.Stock_data_HQM.sort_values(by=['HQM score'],ascending=False)
       print(self.Stock_data_HQM)
 
-#scores = self.self.Stock_data_HQM['HQM score']
-#self.self.Stock_data_HQM = self.self.Stock_data_HQM.loc[self.self.Stock_data_HQM['HQM score'] > np.mean(scores)]
 
-#self.self.Stock_data_HQM.sort_values(by=['HQM score'],ascending=False,inplace=True)
-
-#self.self.Stock_data_HQM.index   
     def QMS_process(self):
       pricelist = list(self.get_price_data(self.Ticker))
       yearchange = list(self.get_yearchange_data(self.Ticker))
       available_symbols_list=list(self.get_available_symbol_data(self.Ticker))
       print(len(available_symbols_list),len(yearchange),len(pricelist))
       self.load_data(available_symbols_list,pricelist,yearchange)
+      self.get_portfolio_data()
       self.get_cols_length()
       self.load_returns()
       self.get_percentile()
       self.get_HQM_score()
-      self.get_portfolio_data()
+__key__ = str(input('Enter IEX key'))        
+at = QMS('sp_500_stocks.csv',__key__)
+at.QMS_process()
+at.Stock_data_HQM[:70]
