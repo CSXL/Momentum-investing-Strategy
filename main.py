@@ -70,7 +70,7 @@ class QMS:
         potfolio = int(input('Enter a value : '))
         potfolio_size = (potfolio/70)
         for i in range(0,len(self.Stock_data.index),1):
-            self.Stock_data.loc[i,'Number of shares to purchase'] = potfolio_size/self.Stock_data.loc[i,'price']
+            self.Stock_data.loc[i,'Number of shares to purchase'] = math.floor(potfolio_size/self.Stock_data.loc[i,'price'])
 
         print(self.Stock_data)
 
