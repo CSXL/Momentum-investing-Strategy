@@ -76,7 +76,7 @@ class QMS:
 
 
     def get_cols_length(self):
-        HQM_columns = ['symbols','price','Number of shares to buy','year1ChangeReturn','year1ChangeReturn percentile',"month6ChangeReturn",'month6ChangeReturn percentile','month3ChangeReturn','month3ChangeReturn percentile','month1ChangeReturn','month1ChangeReturn percentile','HQM score']
+        HQM_columns = ['symbols','price','Number of shares to buy','year5ChangeReturn','year5ChangeReturn percentile','year2ChangeReturn','year2ChangeReturn percentile','year1ChangeReturn','year1ChangeReturn percentile',"month6ChangeReturn",'month6ChangeReturn percentile','month3ChangeReturn','month3ChangeReturn percentile','month1ChangeReturn','month1ChangeReturn percentile','HQM score']
         self.Stock_data_HQM = pd.DataFrame(columns=HQM_columns)
         self.Stock_data_HQM
         print(len(HQM_columns))
@@ -90,10 +90,12 @@ class QMS:
                 self.Stock_data_HQM.loc[index,'symbols'] = self.Stock_data['Symbol'][index]
                 self.Stock_data_HQM.loc[index,'price'] = self.Stock_data['price'][index]
                 self.Stock_data_HQM.loc[index,'Number of shares to buy'] = self.Stock_data['Number of shares to purchase'][index]
-                self.Stock_data_HQM.loc[index,'year1ChangeReturn'] = data[label]['stats']['ytdChangePercent']
+                self.Stock_data_HQM.loc[index,'year1ChangeReturn'] = data[label]['stats']['year1ChangePercent']
                 self.Stock_data_HQM.loc[index,'month6ChangeReturn'] = data[label]['stats']['month6ChangePercent']
                 self.Stock_data_HQM.loc[index,'month3ChangeReturn'] = data[label]['stats']['month3ChangePercent']
                 self.Stock_data_HQM.loc[index,'month1ChangeReturn'] = data[label]['stats']['month1ChangePercent']
+                self.Stock_data_HQM.loc[index,'year5ChangeReturn'] = data[label]['stats']['year5ChangePercent']
+                self.Stock_data_HQM.loc[index,'year2ChangeReturn'] = data[label]['stats']['year2ChangePercent']
                 print(label)
 
             except:
@@ -103,7 +105,7 @@ class QMS:
 #year1ChangeReturn month6ChangeReturn  month3ChangeReturn  month1ChangeReturn
     def get_percentile(self):
         from scipy import stats
-        self.chunk_of_return_features = ['year1','month6','month3','month1']
+        self.chunk_of_return_features = ['year5','year2','year1','month6','month3','month1']
 
        
         for time_period in self.chunk_of_return_features:
@@ -139,6 +141,21 @@ class QMS:
                 label = self.Stock_data_HQM.loc[row,'symbols']
                 data = requests.get('https://cloud.iexapis.com/stable/stock/market/batch/?types=stats,quote&symbols='+str(label)+'&token='+str(self.key)).json()
                 self.Stock_data_HQM.loc[row,'month1ChangeReturn'] = data[label]['stats']['month1ChangePercent']
+          if time_period == 'year5':
+
+            for row in self.Stock_data_HQM.index:
+              if self.Stock_data_HQM.loc[row,str(time_period)+'ChangeReturn'] == None:
+                label = self.Stock_data_HQM.loc[row,'symbols']
+                data = requests.get('https://cloud.iexapis.com/stable/stock/market/batch/?types=stats,quote&symbols='+str(label)+'&token='+str(self.key)).json()
+                self.Stock_data_HQM.loc[row,'year5ChangeReturn'] = data[label]['stats']['year5ChangePercent']
+          if time_period == 'year2':
+
+            for row in self.Stock_data_HQM.index:
+              if self.Stock_data_HQM.loc[row,str(time_period)+'ChangeReturn'] == None:
+                label = self.Stock_data_HQM.loc[row,'symbols']
+                data = requests.get('https://cloud.iexapis.com/stable/stock/market/batch/?types=stats,quote&symbols='+str(label)+'&token='+str(self.key)).json()
+                self.Stock_data_HQM.loc[row,'year2ChangeReturn'] = data[label]['stats']['year2ChangePercent']          
+
 
         for row in self.Stock_data_HQM.index:
           for time_period in self.chunk_of_return_features:
@@ -178,4 +195,4 @@ class QMS:
 __key__ = str(input('Enter IEX key'))        
 at = QMS('sp_500_stocks.csv',__key__)
 at.QMS_process()
-at.Stock_data_HQM[:70]
+at.Stock_data_HQM = at.Stock_data_HQM[:70]['symbols']
